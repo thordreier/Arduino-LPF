@@ -41,6 +41,18 @@ void LPFDriver::set_driverfunction( void (*driverfunction) (int8_t speed0, byte 
 
 
 
+void LPFDriver::check_timeout() {
+	if( _timeout && millis() > _timeout ) {
+		_timeout = 0;
+		if( *_driverfunction ) { //if driverfunction is set, then call it
+			_driverfunction( 0, 0, 0, 0 );
+		}
+	}
+}
+
+
+
+
 void LPFDriver::parse_msg( lpf_msg msg ) {
 
 	if( _address == lpf_get_address(msg)
@@ -49,6 +61,7 @@ void LPFDriver::parse_msg( lpf_msg msg ) {
 
 		byte toggle = lpf_get_toggle(msg);
 		byte brake[2] = {0};
+		byte timeout = 0;
 
 		if( lpf_get_escape(msg) ) { //escape mode
 			//fix - not implemented
@@ -129,6 +142,7 @@ void LPFDriver::parse_msg( lpf_msg msg ) {
 			} else if( mode & LPF_MODE_RESERVED ) { //reserved mode
 				//not implemented - it is only reserved from Lego
 			} else if( mode & LPF_MODE_COMBO_DIRECT ) { //combo direct mode
+				timeout = 1;
 				byte combo_msg[] = { ( msg & LPF_MODE_COMBO_DIRECT_OUTPUT0_BITS_FULL ) >> LPF_MODE_COMBO_DIRECT_OUTPUT0_SHIFT_FULL,
 								     ( msg & LPF_MODE_COMBO_DIRECT_OUTPUT1_BITS_FULL ) >> LPF_MODE_COMBO_DIRECT_OUTPUT1_SHIFT_FULL };
 				for( int i = 0; i < 2; i++ ) {
@@ -151,6 +165,12 @@ void LPFDriver::parse_msg( lpf_msg msg ) {
 			} else { //extended mode
 				//fix - not implemented
 			}          
+		}
+
+		if( timeout ) {
+			_timeout = millis() + LPF_TIMEOUT;
+		} else {
+			_timeout = 0;
 		}
 
 		if( *_driverfunction ) { //if driverfunction is set, then call it

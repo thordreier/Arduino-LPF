@@ -17,6 +17,7 @@
 #define LPF_MAX_SPEED        7
 #define LPF_LRC_CHECK_BITS 0xF
 
+#define LPF_TIMEOUT       1200 //1200 milli seconds = 1.2 seconds
 
 
 

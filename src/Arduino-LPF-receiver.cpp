@@ -49,8 +49,6 @@ lpf_msg lpf_receiver_get_next_msg() {
 
 
 
-//fixme: the last message is only found when the next IR pulse is received
-//fixme: message is received regardless of start/stop bit or not
 void lpf_receiver_interrupt() {
 
 	static unsigned long time_prev             = 0;
@@ -59,6 +57,7 @@ void lpf_receiver_interrupt() {
 	static byte          transmitting_bitcount = 0;
 	static lpf_msg       transmitting_msg      = 0;
 	static byte          queue_ptr             = LPF_QUEUE_SIZE - 1;
+	static byte          start_bit_received    = 0;
 
 	// get time and pin value
 	byte          irvalue_new = _sanitize ? digitalRead(_pin) : !digitalRead(_pin); //fixme: i don't know if I should remove this sanitize stuff
@@ -72,26 +71,32 @@ void lpf_receiver_interrupt() {
 			// time between last time it change from off to on to this time it changed from off to on - a full PF bit
 			time_diff = time_new - time_prev + time_diff;
 			
-			//fixme: this stuff should also be checked when there is more than 947us silence
-			if( transmitting_bitcount == LPF_MSG_BITCOUNT && time_new - time_prev + time_diff > 947 ) {
-				transmitting_bitcount = 0;
-				queue_ptr = ( queue_ptr + 1 ) % LPF_QUEUE_SIZE;
-				_LPF_MSG_QUEUE[queue_ptr] = transmitting_msg;
-			}
-
 			// find out if it's low bit (0), high bit (1) or start stop bit
-			if( time_diff > LPF_IR_LOW_MIN && time_diff < LPF_IR_LOW_MAX ) { // low bit range (0)
+			if( start_bit_received && time_diff > LPF_IR_LOW_MIN && time_diff < LPF_IR_LOW_MAX ) { // low bit range (0)
 				transmitting_bitcount++;
 				transmitting_msg = transmitting_msg << 1;
-			} else if( time_diff > LPF_IR_HIGH_MIN && time_diff < LPF_IR_HIGH_MAX ) { //high bit range (1)
+			} else if( start_bit_received && time_diff > LPF_IR_HIGH_MIN && time_diff < LPF_IR_HIGH_MAX ) { //high bit range (1)
 				transmitting_bitcount++;
 				transmitting_msg = (transmitting_msg << 1) | B1;
 			} else if( time_diff > LPF_IR_STARTSTOP_MIN && time_diff < LPF_IR_STARTSTOP_MAX ) { //start stop bit range
 				transmitting_bitcount = 0;
 				transmitting_msg      = 0;
-			} else {
-				//fixme: reset some counters
+				start_bit_received    = 1;
+			} else { //something else
+				transmitting_bitcount = 0;
+				transmitting_msg      = 0;
+				start_bit_received    = 0;
 			}
+
+			// We are cheating here. When we have received 16 bits we put it in the queue without waiting for the last start/stop bit
+			// under test I had some problems with not receiving the last SS-bit
+			if( start_bit_received && transmitting_bitcount == LPF_MSG_BITCOUNT ) {
+				queue_ptr = ( queue_ptr + 1 ) % LPF_QUEUE_SIZE;
+				_LPF_MSG_QUEUE[queue_ptr] = transmitting_msg;
+				transmitting_bitcount = 0;
+				transmitting_msg      = 0;
+			}
+
 		}
 
 		// set "previous" values - used next thime the function is run
