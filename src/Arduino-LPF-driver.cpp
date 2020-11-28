@@ -146,8 +146,8 @@ void LPFDriver::parse_msg( lpf_msg msg ) {
 				//not implemented - it is only reserved from Lego
 			} else if( mode & LPF_MODE_COMBO_DIRECT ) { //combo direct mode
 				timeout = 1;
-				byte combo_msg[] = { ( msg & LPF_MODE_COMBO_DIRECT_OUTPUT0_BITS_FULL ) >> LPF_MODE_COMBO_DIRECT_OUTPUT0_SHIFT_FULL,
-								     ( msg & LPF_MODE_COMBO_DIRECT_OUTPUT1_BITS_FULL ) >> LPF_MODE_COMBO_DIRECT_OUTPUT1_SHIFT_FULL };
+				byte combo_msg[] = { (byte) (( msg & LPF_MODE_COMBO_DIRECT_OUTPUT0_BITS_FULL ) >> LPF_MODE_COMBO_DIRECT_OUTPUT0_SHIFT_FULL),
+								     (byte) (( msg & LPF_MODE_COMBO_DIRECT_OUTPUT1_BITS_FULL ) >> LPF_MODE_COMBO_DIRECT_OUTPUT1_SHIFT_FULL) };
 				for( int i = 0; i < 2; i++ ) {
 					switch( combo_msg[i] ) {
 						case LPF_MODE_COMBO_DIRECT_FLOAT:
