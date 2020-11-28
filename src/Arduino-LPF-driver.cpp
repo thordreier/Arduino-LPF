@@ -44,6 +44,7 @@ void LPFDriver::set_driverfunction( void (*driverfunction) (int8_t speed0, byte 
 void LPFDriver::check_timeout() {
 	if( _timeout && millis() > _timeout ) {
 		_timeout = 0;
+        _speed[0] = _speed[1]= 0;
 		if( *_driverfunction ) { //if driverfunction is set, then call it
 			_driverfunction( 0, 0, 0, 0 );
 		}
@@ -61,6 +62,8 @@ void LPFDriver::parse_msg( lpf_msg msg ) {
 
 		byte toggle = lpf_get_toggle(msg);
 		byte brake[2] = {0};
+        int8_t oldspeed[2];
+        memcpy(oldspeed, _speed, 2);
 		byte timeout = 0;
 
 		if( lpf_get_escape(msg) ) { //escape mode
@@ -173,10 +176,12 @@ void LPFDriver::parse_msg( lpf_msg msg ) {
 			_timeout = 0;
 		}
 
-		if( *_driverfunction ) { //if driverfunction is set, then call it
-			//fixme: think about a timer for the timeout functions!!!
-			_driverfunction( _speed[0], brake[0], _speed[1], brake[1] );
-		}
+        if ( _speed[0] != oldspeed[0] || _speed[1] != oldspeed[1] ) {
+            if( *_driverfunction ) { //if driverfunction is set, then call it
+                _driverfunction( _speed[0], brake[0], _speed[1], brake[1] );
+            }
+        }
+
 		_toggle = toggle; //toggle=this run / _toggle=the saved value, used next time the function i run
 	}
 }
