@@ -65,3 +65,18 @@ byte lpf_get_output(lpf_msg msg) {
           LPF_MODE_SINGLE_OUTPUT_FULL_VALUES) >>
          LPF_MODE_SINGLE_OUTPUT_FULL_SHIFT;
 }
+
+// convert LPF speed (-7 to +7) info values that can be used with analogWrite()
+uint16_t lpf_convert_speed(int8_t speed) {
+  uint8_t pwmVal = abs(speed);
+  if (pwmVal < 7) {
+    pwmVal *= 36;
+  } else {
+    pwmVal = 255;
+  }
+  if (speed > 0) {
+    return pwmVal;
+  } else {
+    return pwmVal << 8;
+  }
+}

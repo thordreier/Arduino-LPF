@@ -37,4 +37,7 @@ byte lpf_get_output(lpf_msg msg);      // only works on single mode
 byte lpf_get_brakefloat(lpf_msg msg);
 byte lpf_get_output(lpf_msg msg);
 
+// convert LPF speed (-7 to +7) info values that can be used with analogWrite
+uint16_t lpf_convert_speed(int8_t speed);
+
 #endif
