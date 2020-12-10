@@ -11,7 +11,7 @@
 #include "Arduino-LPF-types.h"
 #include "Arduino-LPF-values.h"
 
-class LPFDriver {
+class LpfDriver {
  private:
   byte _channel;
   byte _address;
@@ -25,7 +25,7 @@ class LPFDriver {
                           byte brake1) = NULL;
 
  public:
-  LPFDriver(byte channel, byte address = 0);
+  LpfDriver(byte channel, byte address = 0);
   void setChannel(byte channel, byte address = 0);
   void setCheckToggle(byte checktoggle);
   void setDriverFunction(void (

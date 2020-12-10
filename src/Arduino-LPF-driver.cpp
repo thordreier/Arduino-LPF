@@ -6,25 +6,25 @@
 #include <Arduino.h>
 #include <stdlib.h>
 
-LPFDriver::LPFDriver(byte channel, byte address) {
+LpfDriver::LpfDriver(byte channel, byte address) {
   setChannel(channel, address);
 }
 
-void LPFDriver::setChannel(byte channel, byte address) {
+void LpfDriver::setChannel(byte channel, byte address) {
   _channel = channel;
   _address = address;
 }
 
-void LPFDriver::setCheckToggle(byte checktoggle) {
+void LpfDriver::setCheckToggle(byte checktoggle) {
   _checktoggle = checktoggle;
 }
 
-void LPFDriver::setDriverFunction(void (
+void LpfDriver::setDriverFunction(void (
     *driverfunction)(int8_t speed0, byte brake0, int8_t speed1, byte brake1)) {
   _driverfunction = driverfunction;
 }
 
-void LPFDriver::checkTimeout() {
+void LpfDriver::checkTimeout() {
   if (_timeout && millis() > _timeout) {
     _timeout = 0;
     _speed[0] = _speed[1] = 0;
@@ -34,7 +34,7 @@ void LPFDriver::checkTimeout() {
   }
 }
 
-void LPFDriver::parseMessage(lpf_msg msg) {
+void LpfDriver::parseMessage(lpf_msg msg) {
   if (_address == lpfGetAddress(msg) && _channel == lpfGetChannel(msg)) {
     byte toggle = lpfGetToggle(msg);
     byte brake[2] = {0};

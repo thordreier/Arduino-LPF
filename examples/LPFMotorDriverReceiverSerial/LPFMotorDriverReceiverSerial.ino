@@ -8,7 +8,7 @@
 const byte ir_pin = 2;
 byte channel = 3;  // between 0 and 3 (for channel 1-4)
 
-LPFDriver driver(channel);
+LpfDriver driver(channel);
 
 void control_motor(int8_t speed0, byte brake0, int8_t speed1, byte brake1) {
   Serial.print("Red speed: ");
