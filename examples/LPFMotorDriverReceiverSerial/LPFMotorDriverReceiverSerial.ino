@@ -15,7 +15,7 @@ void printNumber(uint8_t i) {
   Serial.print(i);
 }
 
-void printSpeed(int8_t speed) {
+void printSpeed(int8_t speed, byte brake) {
   uint16_t pwm = lpfConvertSpeed(speed);
   Serial.print(speed > 0 ? "+" : speed ? "" : " ");
   Serial.print(speed);
@@ -23,14 +23,15 @@ void printSpeed(int8_t speed) {
   printNumber((uint8_t)(pwm >> 8));
   Serial.print(",");
   printNumber((uint8_t)(pwm));
-  Serial.print(")");
+  Serial.print(") ");
+  Serial.print(brake ? "B" : " ");
 }
 
 void controlMotor(int8_t speed0, byte brake0, int8_t speed1, byte brake1) {
   Serial.print("Red speed: ");
-  printSpeed(speed0);
+  printSpeed(speed0, brake0);
   Serial.print(" / Blue speed: ");
-  printSpeed(speed1);
+  printSpeed(speed1, brake1);
   Serial.println();
 }
 
