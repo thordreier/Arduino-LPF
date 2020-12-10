@@ -66,17 +66,25 @@ byte lpf_get_output(lpf_msg msg) {
          LPF_MODE_SINGLE_OUTPUT_FULL_SHIFT;
 }
 
-// convert LPF speed (-7 to +7) info values that can be used with analogWrite()
+// Convert LPF speed (-7 to +7) info values that can be used with analogWrite()
 uint16_t lpf_convert_speed(int8_t speed) {
   uint8_t pwmVal = abs(speed);
-  if (pwmVal < 7) {
-    pwmVal *= 36;
-  } else {
-    pwmVal = 255;
-  }
-  if (speed > 0) {
+  if (pwmVal > 7)  // just sanitizing data
+    pwmVal = 7;
+  pwmVal = pwmVal << 5 | pwmVal << 2 | pwmVal >> 1;
+  if (speed > 0)
     return pwmVal;
-  } else {
+  else
     return pwmVal << 8;
-  }
+}
+
+// Set motor speed based on LPF speed (-7 to +7)
+uint16_t lpf_set_motor_speed(byte pin1,
+                             byte pin2,
+                             int8_t speed,
+                             void (*pwm_function)(uint8_t pin, int val)) {
+  uint16_t pwmSpeed = lpf_convert_speed(speed);
+  pwm_function(pin1, (uint8_t)(pwmSpeed));
+  pwm_function(pin2, (uint8_t)(pwmSpeed >> 8));
+  return pwmSpeed;
 }

@@ -37,7 +37,14 @@ byte lpf_get_output(lpf_msg msg);      // only works on single mode
 byte lpf_get_brakefloat(lpf_msg msg);
 byte lpf_get_output(lpf_msg msg);
 
-// convert LPF speed (-7 to +7) info values that can be used with analogWrite
+// Convert LPF speed (-7 to +7) info values that can be used with analogWrite
 uint16_t lpf_convert_speed(int8_t speed);
+
+// Set motor speed based on LPF speed (-7 to +7)
+uint16_t lpf_set_motor_speed(byte pin1,
+                             byte pin2,
+                             int8_t speed,
+                             void (*pwm_function)(uint8_t pin,
+                                                  int val) = analogWrite);
 
 #endif
