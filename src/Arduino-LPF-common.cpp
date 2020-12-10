@@ -56,7 +56,7 @@ byte lpfGetMode(lpf_msg msg) {
 }
 
 // Nibble 3
-byte lpfGetBrakefloat(lpf_msg msg) {
+byte lpfGetBrakeFloat(lpf_msg msg) {
   return !((msg & LPF_MODE_SINGLE_PWM_BRAKEFLOAT_FULL_LOOKAT) ^
            LPF_MODE_SINGLE_PWM_BRAKEFLOAT_FULL_VALUES);
 }

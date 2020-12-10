@@ -30,12 +30,8 @@ byte lpfGetAddress(lpf_msg msg);
 byte lpfGetMode(lpf_msg msg);
 
 // Nibble 3
-byte lpfGetBrakefloat(lpf_msg msg);  // only works on single mode/PWM
+byte lpfGetBrakeFloat(lpf_msg msg);  // only works on single mode/PWM
 byte lpfGetOutput(lpf_msg msg);      // only works on single mode
-
-// other
-byte lpfGetBrakefloat(lpf_msg msg);
-byte lpfGetOutput(lpf_msg msg);
 
 // Convert LPF speed (-7 to +7) info values that can be used with analogWrite
 uint16_t lpfConvertSpeed(int8_t speed);

@@ -11,8 +11,8 @@ void setup() {
 
   pinMode(ir_pin, INPUT);
   lpfReceiverSetPin(ir_pin);
-  attachInterrupt(digitalPinToInterrupt(ir_pin),
-                  lpfReceiverInterruptHandler, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(ir_pin), lpfReceiverInterruptHandler,
+                  CHANGE);
 }
 
 void loop() {

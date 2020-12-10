@@ -10,13 +10,27 @@ byte channel = 3;  // between 0 and 3 (for channel 1-4)
 
 LpfDriver driver(channel);
 
-void control_motor(int8_t speed0, byte brake0, int8_t speed1, byte brake1) {
+void printNumber(uint8_t i) {
+  Serial.print(i < 10 ? "  " : i < 100 ? " " : "");
+  Serial.print(i);
+}
+
+void printSpeed(int8_t speed) {
+  uint16_t pwm = lpfConvertSpeed(speed);
+  Serial.print(speed > 0 ? "+" : speed ? "" : " ");
+  Serial.print(speed);
+  Serial.print(" PWM(");
+  printNumber((uint8_t)(pwm >> 8));
+  Serial.print(",");
+  printNumber((uint8_t)(pwm));
+  Serial.print(")");
+}
+
+void controlMotor(int8_t speed0, byte brake0, int8_t speed1, byte brake1) {
   Serial.print("Red speed: ");
-  Serial.print(speed0 > 0 ? "+" : speed0 ? "" : " ");
-  Serial.print(speed0);
+  printSpeed(speed0);
   Serial.print(" / Blue speed: ");
-  Serial.print(speed1 > 0 ? "+" : speed1 ? "" : " ");
-  Serial.print(speed1);
+  printSpeed(speed1);
   Serial.println();
 }
 
@@ -25,9 +39,9 @@ void setup() {
 
   pinMode(ir_pin, INPUT);
   lpfReceiverSetPin(ir_pin);
-  attachInterrupt(digitalPinToInterrupt(ir_pin),
-                  lpfReceiverInterruptHandler, CHANGE);
-  driver.setDriverFunction(control_motor);
+  attachInterrupt(digitalPinToInterrupt(ir_pin), lpfReceiverInterruptHandler,
+                  CHANGE);
+  driver.setDriverFunction(controlMotor);
 }
 
 void loop() {
