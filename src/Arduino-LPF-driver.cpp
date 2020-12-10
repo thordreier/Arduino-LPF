@@ -3,28 +3,28 @@
  */
 
 #include "Arduino-LPF-driver.h"
+#include <Arduino.h>
 #include <stdlib.h>
-#include "Arduino.h"
 
 LPFDriver::LPFDriver(byte channel, byte address) {
-  set_channel(channel, address);
+  setChannel(channel, address);
 }
 
-void LPFDriver::set_channel(byte channel, byte address) {
+void LPFDriver::setChannel(byte channel, byte address) {
   _channel = channel;
   _address = address;
 }
 
-void LPFDriver::set_checktoggle(byte checktoggle) {
+void LPFDriver::setCheckToggle(byte checktoggle) {
   _checktoggle = checktoggle;
 }
 
-void LPFDriver::set_driverfunction(void (
+void LPFDriver::setDriverFunction(void (
     *driverfunction)(int8_t speed0, byte brake0, int8_t speed1, byte brake1)) {
   _driverfunction = driverfunction;
 }
 
-void LPFDriver::check_timeout() {
+void LPFDriver::checkTimeout() {
   if (_timeout && millis() > _timeout) {
     _timeout = 0;
     _speed[0] = _speed[1] = 0;
@@ -34,76 +34,76 @@ void LPFDriver::check_timeout() {
   }
 }
 
-void LPFDriver::parse_msg(lpf_msg msg) {
-  if (_address == lpf_get_address(msg) && _channel == lpf_get_channel(msg)) {
-    byte toggle = lpf_get_toggle(msg);
+void LPFDriver::parseMessage(lpf_msg msg) {
+  if (_address == lpfGetAddress(msg) && _channel == lpfGetChannel(msg)) {
+    byte toggle = lpfGetToggle(msg);
     byte brake[2] = {0};
     int8_t oldspeed[2];
     memcpy(oldspeed, _speed, 2);
     byte timeout = 0;
 
-    if (lpf_get_escape(msg)) {  // escape mode
+    if (lpfGetEscape(msg)) {  // escape mode
       // fix - not implemented
     } else {  // not escape mode
-      byte mode = lpf_get_mode(msg);
+      byte mode = lpfGetMode(msg);
       if (mode & LPF_MODE_SINGLE) {  // single output mode
         if ((!_checktoggle) || _toggle != toggle) {
-          byte data = lpf_get_nibble3(msg);
+          byte data = lpfGetNibble3(msg);
           byte output = mode & LPF_MODE_SINGLE_OUTPUTBITMASK;  // red=0 or
                                                                // blue=1
 
           if (mode & LPF_MODE_SINGLE_CSTID) {  // Clear/Set/Toggle/Inc/Dec
             switch (data) {
-              // case B0000: //Toggle full forward (Stop → Fw, Fw → Stop, Bw →
+              // case 0b0000: //Toggle full forward (Stop → Fw, Fw → Stop, Bw →
               // Fw)
               //  //fix - not implemented
               //  break;
-              // case B0001: //Toggle direction
+              // case 0b0001: //Toggle direction
               //  //fix - not implemented
               //  break;
-              // case B0010: //Increment numerical PWM
+              // case 0b0010: //Increment numerical PWM
               //  //fix - not implemented
               //  break;
-              // case B0011: //Decrement numerical PWM
+              // case 0b0011: //Decrement numerical PWM
               //  //fix - not implemented
               //  break;
-              case B0100:  // Increment PWM
+              case 0b0100:  // Increment PWM
                 if (_speed[output] < LPF_MAX_SPEED)
                   ++_speed[output];
                 break;
-              case B0101:  // Decrement PWM
+              case 0b0101:  // Decrement PWM
                 if (_speed[output] > -LPF_MAX_SPEED)
                   --_speed[output];
                 break;
-                // case B0110: //Full forward (timeout)
+                // case 0b0110: //Full forward (timeout)
                 //  //fix - not implemented
                 //  break;
-                // case B0111: //Full backward (timeout)
+                // case 0b0111: //Full backward (timeout)
                 //  //fix - not implemented
                 //  break;
-                // case B1000: //Toggle full forward/backward (default forward)
+                // case 0b1000: //Toggle full forward/backward (default forward)
                 //  //fix - not implemented
                 //  break;
-                // case B1001: //Clear C1 (negative logic – C1 high)
+                // case 0b1001: //Clear C1 (negative logic – C1 high)
                 //  //fix - not implemented
                 //  break;
-                // case B1010: //Set C1 (negative logic – C1 low)
+                // case 0b1010: //Set C1 (negative logic – C1 low)
                 //  //fix - not implemented
                 //  break;
-                // case B1011: //Toggle C1
+                // case 0b1011: //Toggle C1
                 //  //fix - not implemented
                 //  break;
-                // case B1100: //Clear C2 (negative logic – C2 high)
+                // case 0b1100: //Clear C2 (negative logic – C2 high)
                 //  //fix - not implemented
                 //  break;
-                // case B1101: //Set C2 (negative logic – C2 low)
+                // case 0b1101: //Set C2 (negative logic – C2 low)
                 //  //fix - not implemented
                 //  break;
-                // case B1110: //Toggle C2
+                // case 0b1110: //Toggle C2
                 //  //fix - not implemented
                 //  break;
-                // case B1111: //Toggle full backward (Stop → Bw, Bw → Stop, Fwd
-                // → Bw)
+                // case 0b1111: //Toggle full backward (Stop → Bw, Bw → Stop,
+                // Fwd → Bw)
                 //  //fix - not implemented
                 //  break;
             }

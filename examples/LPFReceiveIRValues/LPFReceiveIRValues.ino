@@ -2,21 +2,21 @@
  * https://github.com/thordreier/Arduino-LPF
  */
 
-#include "Arduino-LPF-receiver.h"
+#include <Arduino-LPF-receiver.h>
 
-const byte IRreceiverPin = 2;
+const byte ir_pin = 2;
 
 void setup() {
   Serial.begin(9600);
 
-  pinMode(IRreceiverPin, INPUT);
-  lpf_receiver_set_pin(IRreceiverPin);
-  attachInterrupt(digitalPinToInterrupt(IRreceiverPin), lpf_receiver_interrupt,
-                  CHANGE);
+  pinMode(ir_pin, INPUT);
+  lpfReceiverSetPin(ir_pin);
+  attachInterrupt(digitalPinToInterrupt(ir_pin),
+                  lpfReceiverInterruptHandler, CHANGE);
 }
 
 void loop() {
-  while (lpf_msg msg = lpf_receiver_get_next_msg()) {
+  while (lpf_msg msg = lpfReceiverGetNextMessage()) {
     // If using  this, then leading zeroes will not be printed
     // Serial.println( msg, BIN );
 

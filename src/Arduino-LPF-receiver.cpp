@@ -3,37 +3,37 @@
  */
 
 #include "Arduino-LPF-receiver.h"
+#include <Arduino.h>
 #include <stdlib.h>
-#include "Arduino.h"
 
 static volatile byte _pin = 0;
 static volatile byte _sanitize = 0;
-static volatile lpf_msg _LPF_MSG_QUEUE[LPF_QUEUE_SIZE] = {0};
+static volatile lpf_msg _lpf_msg_queue[LPF_QUEUE_SIZE] = {0};
 
-void lpf_receiver_set_pin(byte pin) {
+void lpfReceiverSetPin(byte pin) {
   _pin = pin;
 }
 
-void lpf_receiver_set_sanitize(byte sanitize) {
+void lpfReceiverSetSanitize(byte sanitize) {
   _sanitize = sanitize;
 }
 
-lpf_msg lpf_receiver_get_next_msg() {
+lpf_msg lpfReceiverGetNextMessage() {
   static byte queue_ptr = 0;
   lpf_msg msg = 0;
-  if (_LPF_MSG_QUEUE[queue_ptr]) {
+  if (_lpf_msg_queue[queue_ptr]) {
     // fixme: maybe the next two lines should be run with interrupts disabled
-    msg = _LPF_MSG_QUEUE[queue_ptr];
-    _LPF_MSG_QUEUE[queue_ptr] = 0;
+    msg = _lpf_msg_queue[queue_ptr];
+    _lpf_msg_queue[queue_ptr] = 0;
     queue_ptr = (queue_ptr + 1) % LPF_QUEUE_SIZE;
-    if (!lpf_lrc_check(msg)) {
+    if (!lpfLrcCheck(msg)) {
       msg = 0;
     }
   }
   return msg;
 }
 
-void lpf_receiver_interrupt() {
+void lpfReceiverInterruptHandler() {
   static unsigned long time_prev = 0;
   static unsigned long time_diff = 0;
   static byte irvalue_prev = 0;
@@ -68,7 +68,7 @@ void lpf_receiver_interrupt() {
       } else if (start_bit_received && time_diff > LPF_IR_HIGH_MIN &&
                  time_diff < LPF_IR_HIGH_MAX) {  // high bit range (1)
         transmitting_bitcount++;
-        transmitting_msg = (transmitting_msg << 1) | B1;
+        transmitting_msg = (transmitting_msg << 1) | 0b1;
       } else if (time_diff > LPF_IR_STARTSTOP_MIN &&
                  time_diff < LPF_IR_STARTSTOP_MAX) {  // start stop bit range
         transmitting_bitcount = 0;
@@ -85,7 +85,7 @@ void lpf_receiver_interrupt() {
       // problems with not receiving the last SS-bit
       if (start_bit_received && transmitting_bitcount == LPF_MSG_BITCOUNT) {
         queue_ptr = (queue_ptr + 1) % LPF_QUEUE_SIZE;
-        _LPF_MSG_QUEUE[queue_ptr] = transmitting_msg;
+        _lpf_msg_queue[queue_ptr] = transmitting_msg;
         transmitting_bitcount = 0;
         transmitting_msg = 0;
       }
