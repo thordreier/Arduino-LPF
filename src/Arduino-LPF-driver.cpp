@@ -127,7 +127,6 @@ void LpfDriver::parseMessage(lpf_msg msg) {
       } else if (mode & LPF_MODE_RESERVED) {  // reserved mode
         // not implemented - it is only reserved from Lego
       } else if (mode & LPF_MODE_COMBO_DIRECT) {  // combo direct mode
-        timeout = 1;
         byte combo_msg[] = {
             (byte)((msg & LPF_MODE_COMBO_DIRECT_OUTPUT0_BITS_FULL) >>
                    LPF_MODE_COMBO_DIRECT_OUTPUT0_SHIFT_FULL),
@@ -139,9 +138,11 @@ void LpfDriver::parseMessage(lpf_msg msg) {
               _speed[i] = 0;
               break;
             case LPF_MODE_COMBO_DIRECT_FORWARD:
+              timeout = 1;
               _speed[i] = LPF_MAX_SPEED;
               break;
             case LPF_MODE_COMBO_DIRECT_BACKWARD:
+              timeout = 1;
               _speed[i] = -LPF_MAX_SPEED;
               break;
             case LPF_MODE_COMBO_DIRECT_BRAKE:
